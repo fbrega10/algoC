@@ -72,3 +72,23 @@ int countNodes(node * head){
 		return 1 + countNodes(head -> next);
 	}
 }
+
+node * removeHead(node * head){
+	if (head == NULL){
+		printf("could not remove the head, empty list\n");
+	}else{
+		node * p = head;
+		head = head -> next;
+		free(p);
+	}
+	return head;
+}
+
+void removeTail(node * head){
+	while (head -> next -> next != NULL){
+		head = head -> next;
+	}
+	node * p = head -> next;
+	head -> next = NULL;
+	free(p);
+}

@@ -15,6 +15,8 @@ void flushListRec(node * head);
 void flushList(node * head);
 node * buildRandomList(int size);
 int countNodes(node * head);
+node * removeHead(node * head);
+void removeTail(node * head);
 
 
 #endif
