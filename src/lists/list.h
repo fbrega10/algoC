@@ -14,6 +14,7 @@ int getRandomNumber();
 void flushListRec(node * head);
 void flushList(node * head);
 node * buildRandomList(int size);
+int countNodes(node * head);
 
 
 #endif

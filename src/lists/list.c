@@ -63,3 +63,12 @@ node * buildRandomList(int size){
 	}
 	return head;
 }
+
+
+int countNodes(node * head){
+	//counting n° of nodes
+	if (head == NULL) return 0;
+	else{
+		return 1 + countNodes(head -> next);
+	}
+}
