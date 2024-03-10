@@ -92,3 +92,37 @@ void removeTail(node * head){
 	head -> next = NULL;
 	free(p);
 }
+
+node * merge(node * list1, node * list2){
+	//merging the nodes of both lists
+	node * p, *head = NULL, * tail = NULL;
+	while (list1 != NULL && list2 != NULL){
+
+		if (list1 -> data <= list2 -> data){
+			p = list1;
+			list1 = list1 -> next;
+		}
+		else {
+			p = list2;
+			list2 = list2 -> next;
+		}
+		if (head == NULL){
+			head = p;
+			tail = head;
+		}
+		else {
+			tail -> next = p;
+			tail = tail -> next;
+		}
+
+	}
+
+	if (list1 != NULL){
+		tail -> next = list1;
+	}
+	if (list2 != NULL){
+		tail -> next = list2;
+	}
+
+	return head;
+}
