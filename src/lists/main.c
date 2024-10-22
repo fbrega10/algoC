@@ -17,14 +17,14 @@ int main() {
   printList(head);
   flushList(head);
 
-  node * list1 = buildRandomList(5);
-  node * list2 = buildRandomList(5);
+  node *list1 = buildRandomList(5);
+  node *list2 = buildRandomList(5);
   printf("\nprinting list 1 : \n");
   printList(list1);
   printf("\nprinting list 2 : \n");
   printList(list2);
 
-  node * list3 = merge(list1, list2);
+  node *list3 = merge(list1, list2);
   printf("\nprinting list 3 : \n");
   printList(list3);
   flushList(list3);

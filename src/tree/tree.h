@@ -13,7 +13,5 @@ typedef treeNode Tree;
 Tree *buildTree(int initialValue);
 treeNode *newNode(int value);
 Tree *allocWithBothNodes(int nodeValue, int leftValue, int rightValue);
-void printTree(Tree *tree);
-void freeTree(Tree *tree);
 
 #endif

@@ -1,6 +1,7 @@
 #include "tree.h"
 #include <stdio.h>
 #include <stdlib.h>
+
 typedef int element;
 
 Tree *buildTree(int initialValue) {
@@ -28,13 +29,3 @@ Tree *allocWithBothNodes(int nodeValue, int leftValue, int rightValue) {
   return this;
 }
 
-void printTree(Tree *tree) {
-  printf("1)          %d\n", tree->value);
-  printf("2)    %d            %d\n", tree->left->value, tree->right->value);
-}
-
-void freeTree(Tree *tree) {
-  free(tree->left);
-  free(tree->right);
-  free(tree);
-}
