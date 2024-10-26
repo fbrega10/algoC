@@ -1,6 +1,6 @@
 CC=gcc
 WA=-Werror -Wpedantic -Wextra
-OUT=-o main.o
+OUT=-g -o main.o
 IN=list.c main.c
 RUN=./main.o
 

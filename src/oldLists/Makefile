@@ -1,7 +1,7 @@
 CC=gcc
 WA=-Werror -Wpedantic -Wextra
 OUT=-o main.o
-IN=tree.c main.c
+IN=list.c main.c
 RUN=./main.o
 
 build:
