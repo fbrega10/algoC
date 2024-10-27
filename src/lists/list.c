@@ -26,8 +26,15 @@ Element primo(Lista l) {
     return 0;
 }
 
-void removeNext(Lista l) {
-  // if ((*l) != NULL){}
+Element rimuovi(Lista *lptr) {
+  if ((*lptr) != NULL) {
+    Element e = primo(*lptr);
+    Lista l = (*lptr);
+    (*lptr) = (*lptr)->next;
+    free(l);
+    return e;
+  }
+  return 0;
 }
 
 void printList(const Lista l) {
@@ -47,4 +54,56 @@ void freeList(Lista l) {
     free(l);
     freeList(tmp);
   }
+}
+
+/*
+ * Stack methods and interfaces
+ */
+
+int isEMptyP(Pila p) { return isEmpty(p); }
+
+void push(Element e, Pila *p) { addNode(e, p); }
+
+Element pop(Pila *p) { return rimuovi(p); }
+
+// Element top(Pila *p) { return primo(*p); }
+
+Element top(Pila *p) {
+  if (isEMptyP(*p))
+    return 0;
+  while ((*p)->next != NULL) {
+    (*p) = (*p)->next;
+  }
+  return (*p)->valore;
+}
+
+Pila makePila() { return makeLista(); }
+
+/*
+ * Queue methods and interfaces
+ */
+
+int isEmptyC(Coda c) { return isEmpty(c.primo); }
+
+void enqueue(Element e, Coda *c) {
+  Lista l = NULL;
+  addNode(e, &l);
+  if (isEmptyC(*c)) {
+    (*c).primo = l;
+    (*c).ultimo = l;
+  } else {
+    // update last pointer to l
+    (*c).ultimo->next = l;
+    (*c).ultimo = l;
+  }
+}
+
+Element dequeue(Coda *c) { return rimuovi(&((*c).primo)); }
+
+Element first(Coda c) { return primo(c.primo); }
+
+Coda makeCoda() {
+  Coda c;
+  c.primo = c.ultimo = NULL;
+  return c;
 }

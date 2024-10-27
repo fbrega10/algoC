@@ -8,3 +8,5 @@ main.o: main.c list.c
 	$(CC) $(IN) $(OUT)
 run:
 	$(RUN)
+clean:
+	rm *.o
