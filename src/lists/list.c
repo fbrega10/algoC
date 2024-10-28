@@ -22,8 +22,7 @@ void addNode(Element e, Lista *l) {
 Element primo(Lista l) {
   if (l != NULL)
     return l->valore;
-  else
-    return 0;
+  return NULL;
 }
 
 Element rimuovi(Lista *lptr) {
@@ -34,14 +33,14 @@ Element rimuovi(Lista *lptr) {
     free(l);
     return e;
   }
-  return 0;
+  return NULL;
 }
 
 void printList(const Lista l) {
   if (isEmpty(l)) {
     printf("NULL \n");
   } else {
-    printf(" %d --> ", l->valore);
+    printf(" %p --> ", l->valore);
     printList(l->next);
   }
 }
@@ -57,7 +56,7 @@ void freeList(Lista l) {
 }
 
 /*
- * Stack methods and interfaces
+ * Stack implementation
  */
 
 int isEMptyP(Pila p) { return isEmpty(p); }
@@ -70,7 +69,7 @@ Element pop(Pila *p) { return rimuovi(p); }
 
 Element top(Pila *p) {
   if (isEMptyP(*p))
-    return 0;
+    return NULL;
   while ((*p)->next != NULL) {
     (*p) = (*p)->next;
   }
@@ -80,7 +79,7 @@ Element top(Pila *p) {
 Pila makePila() { return makeLista(); }
 
 /*
- * Queue methods and interfaces
+ * Queue implementation
  */
 
 int isEmptyC(Coda c) { return isEmpty(c.primo); }
@@ -106,4 +105,40 @@ Coda makeCoda() {
   Coda c;
   c.primo = c.ultimo = NULL;
   return c;
+}
+
+Albero creaNodo(Elemento e) {
+  Albero al;
+  al = (Albero)malloc(sizeof(Nodo));
+  al->destro = al->sinistro = NULL;
+  al->inf = e;
+  return al;
+}
+
+void visitDFS(Albero *al) {
+  Pila p = makePila();
+  push((*al), &p);
+  while (!isEMptyP(p)) {
+    Element e = pop(&p);
+    printf(" - %d", e->inf);
+    if ((e->sinistro) != NULL)
+      push(e->sinistro, &p);
+    if ((e->destro) != NULL)
+      push(e->destro, &p);
+  }
+  printf("\n");
+}
+
+void visitBFS(Albero *al) {
+  Coda p = makeCoda();
+  enqueue((*al), &p);
+  while (!isEmptyC(p)) {
+    Element e = dequeue(&p);
+    printf(" - %d", e->inf);
+    if ((e->sinistro) != NULL)
+      enqueue(e->sinistro, &p);
+    if ((e->destro) != NULL)
+      enqueue(e->destro, &p);
+  }
+  printf("\n");
 }

@@ -1,5 +1,19 @@
 
-typedef int Element;
+typedef int Elemento;
+
+typedef struct Nodo {
+  Elemento inf;
+  struct Nodo *sinistro;
+  struct Nodo *destro;
+} Nodo;
+
+typedef Nodo *Albero;
+Albero creaNodo(Elemento);
+
+typedef Nodo *Element;
+
+void visitDFS(Albero *al);
+void visitBFS(Albero *al);
 
 typedef struct NodeLista {
   struct NodeLista *next;
