@@ -7,6 +7,7 @@ int main(int argc, char *argv[]) {
   al->destro = creaNodo(5);
   al->sinistro = creaNodo(6);
   visitDFS(&al);
-  free(al);
+  visitSymRecDFS(&al);
+  freeTree(&al);
   return EXIT_SUCCESS;
 }

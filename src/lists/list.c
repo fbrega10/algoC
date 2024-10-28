@@ -120,7 +120,7 @@ void visitDFS(Albero *al) {
   push((*al), &p);
   while (!isEMptyP(p)) {
     Element e = pop(&p);
-    printf(" - %d", e->inf);
+    printf("%d\n", e->inf);
     if ((e->sinistro) != NULL)
       push(e->sinistro, &p);
     if ((e->destro) != NULL)
@@ -134,11 +134,55 @@ void visitBFS(Albero *al) {
   enqueue((*al), &p);
   while (!isEmptyC(p)) {
     Element e = dequeue(&p);
-    printf(" - %d", e->inf);
+    printf("%d\n", e->inf);
     if ((e->sinistro) != NULL)
       enqueue(e->sinistro, &p);
     if ((e->destro) != NULL)
       enqueue(e->destro, &p);
   }
   printf("\n");
+}
+
+void visitSymRecDFS(Albero *al) {
+  // asymmetric recursive tree visit
+  if ((*al) == NULL)
+    return;
+  else {
+    visitSymRecDFS(&(*al)->sinistro);
+    printf("%d\n", (*al)->inf);
+    visitSymRecDFS(&(*al)->destro);
+  }
+}
+
+void visitPreRecDFS(Albero *al) {
+  // preorder recursive tree visit
+  if ((*al) == NULL)
+    return;
+  else {
+    printf("%d\n", (*al)->inf);
+    visitPreRecDFS(&(*al)->sinistro);
+    visitPreRecDFS(&(*al)->destro);
+  }
+}
+
+void visitPostRecDFS(Albero *al) {
+  // postorder recursive tree visit
+  if ((*al) == NULL)
+    return;
+  else {
+    visitPostRecDFS(&(*al)->sinistro);
+    visitPostRecDFS(&(*al)->destro);
+    printf("%d\n", (*al)->inf);
+  }
+}
+
+void freeTree(Albero *al) {
+  // freeing a tree recursively
+  if ((*al) == NULL)
+    return;
+  else {
+    freeTree(&(*al)->sinistro);
+    freeTree(&(*al)->destro);
+    free(*al);
+  }
 }

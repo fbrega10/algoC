@@ -14,6 +14,10 @@ typedef Nodo *Element;
 
 void visitDFS(Albero *al);
 void visitBFS(Albero *al);
+void visitSymRecDFS(Albero *al);
+void visitPreRecDFS(Albero *al);
+void visitPostRecDFS(Albero *al);
+void freeTree(Albero *al);
 
 typedef struct NodeLista {
   struct NodeLista *next;
