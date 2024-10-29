@@ -186,3 +186,41 @@ void freeTree(Albero *al) {
     free(*al);
   }
 }
+
+int isLeaf(Albero al) { return (al->destro == NULL && al->sinistro == NULL); }
+
+int countLeaves(Albero al) {
+  // counting the leaves of a tree recursively
+  if (al == NULL)
+    return 0;
+  if (isLeaf(al))
+    return 1;
+  return countLeaves(al->sinistro) + countLeaves(al->destro);
+}
+
+int countNodes(Albero al) {
+  if (al == NULL)
+    return 0;
+  else {
+    return 1 + countNodes(al->sinistro) + countNodes(al->destro);
+  }
+}
+
+int nodesSum(Albero al) {
+  if (al == NULL)
+    return 0;
+  else {
+    return (al->inf) + nodesSum(al->sinistro) + nodesSum(al->destro);
+  }
+}
+int max(int c, int d) {
+  if (c >= d)
+    return c;
+  return d;
+}
+
+int treeHeight(Albero al) {
+  if (al == NULL)
+    return -1;
+  return 1 + max(treeHeight(al->sinistro), treeHeight(al->destro));
+}

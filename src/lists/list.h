@@ -18,6 +18,12 @@ void visitSymRecDFS(Albero *al);
 void visitPreRecDFS(Albero *al);
 void visitPostRecDFS(Albero *al);
 void freeTree(Albero *al);
+int isLeaf(Albero al);
+int countLeaves(Albero al);
+int countNodes(Albero al);
+int nodesSum(Albero al);
+int max(int, int);
+int treeHeight(Albero al);
 
 typedef struct NodeLista {
   struct NodeLista *next;
