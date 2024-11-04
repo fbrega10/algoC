@@ -24,6 +24,7 @@ int countNodes(Albero al);
 int nodesSum(Albero al);
 int max(int, int);
 int treeHeight(Albero al);
+int findNode(int value, Albero al);
 
 typedef struct NodeLista {
   struct NodeLista *next;

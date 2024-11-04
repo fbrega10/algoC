@@ -224,3 +224,15 @@ int treeHeight(Albero al) {
     return -1;
   return 1 + max(treeHeight(al->sinistro), treeHeight(al->destro));
 }
+
+int findNode(int value, Albero al) {
+  if (al == NULL)
+    return al == NULL;
+  if (al->inf == value)
+    return al->inf == value;
+  if (findNode(value, al->sinistro))
+    return 1;
+  if (findNode(value, al->destro))
+    return 1;
+  return 0;
+}

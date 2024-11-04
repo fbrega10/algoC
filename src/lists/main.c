@@ -21,6 +21,13 @@ int main(int argc, char *argv[]) {
   printf("\n number of leaves: %d\n", countLeaves(al));
   printf("nodes sum is : %d\n", nodesSum(al));
   printf("tree height is : %d\n", treeHeight(al));
+
+  int retvalue = findNode(5, al);
+  if (retvalue == 1)
+    printf("found value! 5\n");
+  else
+    printf("value 5 not found...\n");
   freeTree(&al);
+
   return EXIT_SUCCESS;
 }
