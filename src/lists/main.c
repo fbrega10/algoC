@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
   printf("nodes sum is : %d\n", nodesSum(al));
   printf("tree height is : %d\n", treeHeight(al));
 
+  printf("sum of all the odd nodes is : %d\n", sumOddNodes(al));
   int retvalue = findNode(5, al);
   if (retvalue == 1)
     printf("found value! 5\n");

@@ -236,3 +236,12 @@ int findNode(int value, Albero al) {
     return 1;
   return 0;
 }
+
+int sumOddNodes(Albero al) {
+  if (al == NULL)
+    return 0;
+  if (al->inf % 2 == 1)
+    return (al->inf) + sumOddNodes(al->sinistro) + sumOddNodes(al->destro);
+  else
+    return sumOddNodes(al->sinistro) + sumOddNodes(al->destro);
+}
