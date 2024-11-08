@@ -1,9 +1,9 @@
-#include <stdbool.h>
+#include "bsearch.h"
 #include <stdio.h>
 
-bool binary_search(int array[], int element) {
+bool binary_search(el array[], int element) {
   int a = 0;
-  int b = (sizeof(array) / sizeof(int)) - 1;
+  int b = (sizeof(array) / sizeof(el)) - 1;
   int middle = 0;
 
   while (a < b) {
