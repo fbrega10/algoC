@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   selection_sort(&d[0], 9);
   int d2[9];
   memcpy(d2, d, sizeof(d));
-  bubble_sort(d2, 9);
+  insertion_sort(d2, 9);
   print_array(&d[0], 9);
   print_array(&d2[0], 9);
   return EXIT_SUCCESS;

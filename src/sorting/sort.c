@@ -60,3 +60,19 @@ void bubble_sort(element *array, size_t size) {
         }
     }
 }
+
+void insertion_sort(element *array, size_t size){
+    for (int i = 0; i < size - 1; i++){
+        element x = array[i + 1];
+        int j = i;
+        for (; j >= 0; j--) {
+            if (j >= 0 && array[j] <= x) break;
+        }
+        if (j < i){
+            for (int t = i; t >= j+1; j--){
+                swap(&array[t+1], &array[t]);
+            }
+            swap(&array[j + 1], &array[j + 1]);
+        }
+    }
+}
