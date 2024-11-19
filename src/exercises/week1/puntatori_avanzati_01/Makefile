@@ -6,6 +6,7 @@ objects = int_by_byte \
 		  dangling_ptr_free \
 		  dangling_ptr_outscope \
 		  memleak_nofree \
+		  generic_pointers \
 		  array_copy \
 		  void_ptr \
 
