@@ -23,24 +23,31 @@ SOFTWARE.
 */
 
 #include "bsearch.h"
-#include <stdio.h>
 
-bool binary_search(el array[], int element) {
-  int a = 0;
-  int b = (sizeof(array) / sizeof(el)) - 1;
-  int middle = 0;
+int elem_comp(void *first, void *second) {
+  if (*((int *)first) > *((int *)second))
+    return 1;
+  else if (*((int *)first) < *((int *)second))
+    return -1;
+  else
+    return 0;
+}
 
-  while (a < b) {
-    middle = (b + a) / 2;
-    if (array[middle] == element)
-      printf("element found : %d, which is the middle : %d \n", array[middle],
-             element);
-    return true;
-    if (array[middle] > element) {
-      a = middle + 1;
-    } else {
-      b = middle - 1;
-    }
+void *binary_search(void *key, void *base, size_t num_elem, size_t elem_size, func) {
+  size_t low = 0;
+  size_t high = num_elem - 1;
+  size_t mid;
+  element *base_ptr = base;
+
+  while (low <= high) {
+    mid = (low + high) / 2;
+
+    if (fun(key, (void *)(&base_ptr[elem_size * mid])) < 0)
+      high = mid - 1;
+    else if (fun(key, (void *)(&base_ptr[elem_size * mid])) > 0)
+      low = mid + 1;
+    else
+      return (void *)(&base_ptr[elem_size * mid]);
   }
-  return false;
+  return NULL;
 }
