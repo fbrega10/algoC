@@ -28,9 +28,9 @@ SOFTWARE.
 
 void selection_sort(element *array, size_t size) {
   int min;
-  for (int i = 0; i < size - 1; i++) {
+  for (size_t i = 0; i < size - 1; i++) {
     min = i;
-    for (int j = min + 1; j < size; j++) {
+    for (size_t j = min + 1; j < size; j++) {
       if (*(array + j) < *(array + min))
         min = j;
     }
@@ -47,29 +47,29 @@ void swap(void *pt1, void *pt2) {
 }
 
 void print_array(element *array, size_t size) {
-  for (int i = 0; i < size; i++) {
+  for (size_t i = 0; i < size; i++) {
     printf("%d ", *(array + i));
   }
   printf("\n");
 }
 
 void bubble_sort(element *array, size_t size) {
-    for (int i = 0; i < size - 1 ;i++){
-        for (int j = 1; j < size - i + 1; j++){
+    for (size_t i = 0; i < size - 1 ;i++){
+        for (size_t j = 1; j < size - i + 1; j++){
             if (array[j-1] > array[j]) swap(&array[j], &array[j-1]);
         }
     }
 }
 
 void insertion_sort(element *array, size_t size){
-    for (int i = 0; i < size - 1; i++){
+    for (size_t i = 0; i < size - 1; i++){
         element x = array[i + 1];
-        int j = i;
+        size_t j = i;
         for (; j >= 0; j--) {
             if (j >= 0 && array[j] <= x) break;
         }
         if (j < i){
-            for (int t = i; t >= j+1; j--){
+            for (size_t t = i; t >= j+1; j--){
                 swap(&array[t+1], &array[t]);
             }
             swap(&array[j + 1], &array[j + 1]);
