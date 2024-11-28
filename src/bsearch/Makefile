@@ -2,7 +2,7 @@
 CFLAGS+=-Wall -Wextra -std=c11 -pedantic -g
 
 objects = bsearch \
-		  main
+		  main \
 
 all: $(objects)
 

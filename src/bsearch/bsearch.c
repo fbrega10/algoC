@@ -33,7 +33,7 @@ int elem_comp(void *first, void *second) {
     return 0;
 }
 
-void *binary_search(void *key, void *base, size_t num_elem, size_t elem_size, func) {
+void *binary_search(void *key, void *base, size_t num_elem, size_t elem_size, func fn) {
   size_t low = 0;
   size_t high = num_elem - 1;
   size_t mid;
@@ -42,9 +42,9 @@ void *binary_search(void *key, void *base, size_t num_elem, size_t elem_size, fu
   while (low <= high) {
     mid = (low + high) / 2;
 
-    if (fun(key, (void *)(&base_ptr[elem_size * mid])) < 0)
+    if (fn(key, (void *)(&base_ptr[elem_size * mid])) < 0)
       high = mid - 1;
-    else if (fun(key, (void *)(&base_ptr[elem_size * mid])) > 0)
+    else if (fn(key, (void *)(&base_ptr[elem_size * mid])) > 0)
       low = mid + 1;
     else
       return (void *)(&base_ptr[elem_size * mid]);
