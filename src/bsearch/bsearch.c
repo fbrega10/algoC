@@ -37,7 +37,7 @@ void *binary_search(void *key, void *base, size_t num_elem, size_t elem_size, fu
   size_t low = 0;
   size_t high = num_elem - 1;
   size_t mid;
-  element *base_ptr = base;
+  unsigned char *base_ptr = base;
 
   while (low <= high) {
     mid = (low + high) / 2;
