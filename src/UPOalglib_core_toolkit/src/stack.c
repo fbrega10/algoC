@@ -98,10 +98,7 @@ void upo_stack_pop(upo_stack_t stack, int destroy_data)
 
 void* upo_stack_top(const upo_stack_t stack)
 {
-    if (!upo_stack_is_empty(stack))
-        return stack -> top -> data;
-    else 
-        return NULL;
+    return !upo_stack_is_empty(stack) ?  stack -> top -> data : NULL;
 }
 
 int upo_stack_is_empty(const upo_stack_t stack)
@@ -111,9 +108,7 @@ int upo_stack_is_empty(const upo_stack_t stack)
 
 size_t upo_stack_size(const upo_stack_t stack)
 {
-    if (!upo_stack_is_empty(stack))
-        return stack -> size;
-    return 0;
+    return !upo_stack_is_empty(stack) ? stack -> size : 0;
 }
 
 void upo_stack_clear(upo_stack_t stack, int destroy_data)
