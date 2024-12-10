@@ -48,7 +48,9 @@ int eval_postfix(const char *expr, long *res)
         if (isdigit(expr[i])) {
             a = (long*) malloc(sizeof(long));
             sscanf(&expr[i], "%ld", a);
-            if (*a > 9) ++i;
+            char buf[10];
+            sprintf(buf, "%ld", *a);
+            i += (strlen(buf) - 1);
             upo_stack_push(stack, a);
         }
         else if (expr[i] == ' ') continue;
