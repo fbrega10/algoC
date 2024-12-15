@@ -94,7 +94,7 @@ upo_bst_node_t * upo_bst_new_node(void * key, void * value)
      * parameters. If an error occurs allocating memory, then an error is thrown.
      */
     upo_bst_node_t * node = (upo_bst_node_t *) malloc(sizeof(upo_bst_node_t));
-    if (node == NULL) perror("error allocating memory for new node\n"); 
+    if (node == NULL) perror("error allocating memory for new node\n");
     node -> key = key;
     node -> value = value;
     return node;
@@ -133,7 +133,7 @@ void upo_bst_insert(upo_bst_t tree, void *key, void *value)
 {
     /*
      * If the tree is NULL, nothing is inserted.
-     * If the tree is empty, then a new node with the chosen key/value is on top. 
+     * If the tree is empty, then a new node with the chosen key/value is on top.
      * If it does contain already the value, nothing is done.
      * If it doesn't contain it, then insert it recursevily in the right place.
      */
@@ -189,26 +189,73 @@ int upo_bst_contains(const upo_bst_t tree, const void *key)
 
 void upo_bst_delete(upo_bst_t tree, const void *key, int destroy_data)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
+    /* There are three possible scenarios :
+     * 1 - the node to be removed is a leaf, simplest case resolved with the deletion
+     * 2 - the node has a child : the node has to be removed and the successor has
+     *     to be attached to the current node parent.
+     * 3 - the node has two children, in this case we know that we need to choose
+     *     the predecessor (which is maximum leftmost child).
+     * */
     fprintf(stderr, "To be implemented!\n");
     abort();
+}
+
+size_t upo_bst_size_rec(const upo_bst_node_t * node){
+    /*
+     * If the node is NULL, then return 0.
+     * Otherwise it must count as a valide node, trasverse all the tree
+     * left to right.
+     * The signature of the function assumes the node is const as it won't
+     * be changed (we only "read" the values).
+     */
+    if (node == NULL) return 0;
+    return 1 + upo_bst_size_rec(node -> left) + upo_bst_size_rec(node -> right);
 }
 
 size_t upo_bst_size(const upo_bst_t tree)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    /*
+     * The size of a tree consists in the number of nodes/leaves
+     * that it contains, so we must count each one to get the correct size.
+     * We do this recursively counting each valid node in upo_bst_size_rec
+     */
+    if (tree == NULL || upo_bst_is_empty(tree))
+        return 0;
+    return upo_bst_size_rec(tree -> root);
+}
+
+size_t upo_max_height(size_t height, size_t other)
+{
+    /*
+     * This function returns the max height between
+     * two values.
+     */
+    return height >= other ? height : other;
+}
+
+size_t upo_bst_height_rec(upo_bst_node_t * node)
+{
+    /*
+     * If it is a leaf or null reference, then 0 is returned (because
+     * it is not affecting the height of the tree).
+     * Otherwise get the max height between the left node and the right node,
+     * because the height of a tree is by definition the max number of edges between
+     * the root and the farthest leaf.
+     */
+    if (node == NULL || upo_bst_node_is_leave(node))
+        return 0;
+    else
+        return 1 + upo_max_height(upo_bst_height_rec(node -> left), upo_bst_height_rec(node -> right));
 }
 
 size_t upo_bst_height(const upo_bst_t tree)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    /*
+     * Returns the height of the current tree.
+     */
+    if (tree == NULL || upo_bst_is_empty(tree))
+        return 0;
+    else upo_bst_height_rec(tree -> root);
 }
 
 void upo_bst_traverse_in_order(const upo_bst_t tree, upo_bst_visitor_t visit, void *visit_context)
