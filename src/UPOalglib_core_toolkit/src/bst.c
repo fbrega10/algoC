@@ -145,6 +145,10 @@ void upo_bst_insert(upo_bst_t tree, void *key, void *value)
 }
 
 upo_bst_node_t * upo_bst_get_node(upo_bst_node_t * node, const void *key, upo_bst_comparator_t key_cmp){
+    /*
+     * This function returns a node reference, having the key indicated as parameter.
+     * If not present, a NULL reference is returned.
+     */
     if (node == NULL) return NULL;
     int result = key_cmp(key, node -> key);
     if (result == 0) return node;
@@ -153,6 +157,10 @@ upo_bst_node_t * upo_bst_get_node(upo_bst_node_t * node, const void *key, upo_bs
 }
 
 void* upo_bst_get(const upo_bst_t tree, const void *key)
+    /*
+     * This function gets the key value indicated in the parameter.
+     * If it doesn't, then a NULL reference is returned.
+     */
 {
     if (! upo_bst_is_empty(tree)){
         upo_bst_node_t * node = upo_bst_get_node(tree -> root, key, tree -> key_cmp);
@@ -183,21 +191,105 @@ void* upo_bst_put(upo_bst_t tree, void *key, void *value)
 
 int upo_bst_contains(const upo_bst_t tree, const void *key)
 {
+    /*
+     * This function indicates whether a tree contains a given key or not.  
+     */
     return upo_bst_get(tree, key) != NULL;
+}
+
+upo_bst_node_t * upo_bst_max_node(upo_bst_node_t * node)
+{
+    /*
+     * This function returns the max right node from a given 
+     * node, which is by definition the highest value in a tree.
+     * It searches through the right side until it gets a null
+     * reference as next node.
+     */
+    if (node -> right == NULL)
+        return node;
+    else
+        upo_bst_max_node(node -> right);
+}
+
+upo_bst_node_t * upo_bst_predecessor(upo_bst_node_t * node)
+{
+    if (node -> left != NULL) return upo_bst_max_node(node -> left);
+}
+
+upo_bst_node_t * upo_bst_predecessors_father(upo_bst_node_t * node, upo_bst_node_t * son){
+    /*
+     * Returns the father of the predecessor, which has at it's right the predecessor.
+     */
+    if (node == NULL) return NULL;
+    if (node -> right == son) return node;
+    else upo_bst_predecessors_father(node -> right, son);
+}
+
+void upo_bst_destroy_node(upo_bst_node_t * node, int destroy_data){
+    if (destroy_data != 0){
+        free(node -> key);
+        free(node -> value);
+        free(node);
+    }
+}
+void upo_bst_node_copy(upo_bst_node_t * dst, upo_bst_node_t * src){
+    if (dst == NULL || src == NULL)
+        return;
+    dst -> key = src -> key;
+    dst -> value = src -> value;
+}
+
+upo_bst_node_t * upo_bst_delete_rec(upo_bst_node_t * node, const void *key, int destroy_data, upo_bst_comparator_t key_cmp){
+    /*
+     * There are three cases :
+     * 1) the node is null
+     * 2) the key is less than the current key, so we must go left in the tree
+     * 3) the key is bigger than the current key, so we must go right in the tree
+     * 4) the current node is the key we were looking for and it is a leaf, so just delete it!
+     * 5) the current node is the key we were looking for but it has two children:
+     * find the predecessor (maximum of the left side of the tree) and replace it
+     */
+
+    if (node == NULL)
+        return NULL;
+    int result = key_cmp(key, node -> key);
+
+    if (result < 0)
+        node -> left = upo_bst_delete_rec(node -> left, key, destroy_data, key_cmp);
+    else if (result > 0)
+        node -> right = upo_bst_delete_rec(node -> right, key, destroy_data, key_cmp);
+    else {
+        if (upo_bst_node_is_leave(node))
+        {
+            upo_bst_destroy_node(node, destroy_data);
+        }
+        else if (node -> left != NULL && node -> right != NULL)
+        {
+            upo_bst_node_t * predecessor = upo_bst_predecessor(node);
+            upo_bst_node_copy(node, predecessor); 
+            node -> left = upo_bst_delete_rec(node -> left, predecessor -> key, destroy_data, key_cmp);
+        }
+        else {
+            upo_bst_node_t * tmp = node;
+            if (node -> right != NULL)
+                node = node -> right;
+            else 
+                node = node -> left;
+            free(tmp);
+        }
+    }
+    return node;
 }
 
 
 void upo_bst_delete(upo_bst_t tree, const void *key, int destroy_data)
 {
-    /* There are three possible scenarios :
-     * 1 - the node to be removed is a leaf, simplest case resolved with the deletion
-     * 2 - the node has a child : the node has to be removed and the successor has
-     *     to be attached to the current node parent.
-     * 3 - the node has two children, in this case we know that we need to choose
-     *     the predecessor (which is maximum leftmost child).
+    /* If the tree is null or empty or it doesn't contain the given key, we shouldn't
+     * try to delete the key as absent.
      * */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (tree == NULL || upo_bst_is_empty(tree) || !upo_bst_contains(tree, key))
+        return;
+    else upo_bst_delete_rec(tree -> root, key, destroy_data, tree -> key_cmp);
 }
 
 size_t upo_bst_size_rec(const upo_bst_node_t * node){
@@ -258,12 +350,28 @@ size_t upo_bst_height(const upo_bst_t tree)
     else upo_bst_height_rec(tree -> root);
 }
 
+void upo_bst_traverse_in_order_rec(upo_bst_node_t * node, upo_bst_visitor_t visit, void *visit_context)
+{
+    /*
+     * Visit the tree in order.
+     * If the current node is a leaf then return, in the other case
+     * we can visit the left node and the right node.
+     */
+    if (node == NULL) return;
+    upo_bst_traverse_in_order_rec(node -> left, visit, visit_context);
+    visit(node -> key, node -> value, visit_context);
+    upo_bst_traverse_in_order_rec(node -> right, visit, visit_context);
+}
+
 void upo_bst_traverse_in_order(const upo_bst_t tree, upo_bst_visitor_t visit, void *visit_context)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    /*
+     * If the tree is NULL or empty, then return.
+     * Otherwise visit the tree starting from the root.
+     */
+    if (tree == NULL || upo_bst_is_empty(tree))
+        return;
+    upo_bst_traverse_in_order_rec(tree -> root, visit, visit_context);
 }
 
 int upo_bst_is_empty(const upo_bst_t tree)
