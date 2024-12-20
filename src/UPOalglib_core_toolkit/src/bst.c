@@ -77,7 +77,7 @@ void upo_bst_clear(upo_bst_t tree, int destroy_data)
     }
 }
 
-int upo_bst_node_is_leave(upo_bst_node_t * node)
+int upo_bst_node_is_leaf(upo_bst_node_t * node)
 {
     /*
      * A leave is by a definition a node which has no children.
@@ -109,7 +109,7 @@ void upo_bst_insert_rec(upo_bst_node_t * node, void *key, void *value, upo_bst_c
      */
     int result = key_cmp(key, node -> key);
 
-    if (upo_bst_node_is_leave(node)){
+    if (upo_bst_node_is_leaf(node)){
         //leaf here, put the new value in the right place
         if (result < 0) 
             node -> left = upo_bst_new_node(key, value);
@@ -162,12 +162,11 @@ void* upo_bst_get(const upo_bst_t tree, const void *key)
      * If it doesn't, then a NULL reference is returned.
      */
 {
-    if (! upo_bst_is_empty(tree)){
-        upo_bst_node_t * node = upo_bst_get_node(tree -> root, key, tree -> key_cmp);
-        if (node != NULL) return node -> value;
-        else return NULL;
-    }
-    return NULL;
+    upo_bst_node_t * node = upo_bst_get_node(tree -> root, key, tree -> key_cmp);
+    if (node != NULL) 
+        return node -> value;
+    else 
+        return NULL;
 }
 
 void* upo_bst_put(upo_bst_t tree, void *key, void *value)
@@ -194,7 +193,9 @@ int upo_bst_contains(const upo_bst_t tree, const void *key)
     /*
      * This function indicates whether a tree contains a given key or not.  
      */
-    return upo_bst_get(tree, key) != NULL;
+    if (tree == NULL || key == NULL)
+        return 0;
+    return upo_bst_get_node(tree -> root, key, tree -> key_cmp) != NULL;
 }
 
 upo_bst_node_t * upo_bst_max_node(upo_bst_node_t * node)
@@ -225,18 +226,30 @@ upo_bst_node_t * upo_bst_predecessors_father(upo_bst_node_t * node, upo_bst_node
     else upo_bst_predecessors_father(node -> right, son);
 }
 
-void upo_bst_destroy_node(upo_bst_node_t * node, int destroy_data){
+void upo_bst_destroy_node(upo_bst_node_t ** node, int destroy_data){
     if (destroy_data != 0){
-        free(node -> key);
-        free(node -> value);
-        free(node);
+        free((*node) -> key);
+        free((*node) -> value);
+        free(*node);
     }
+    *node = NULL;
 }
 void upo_bst_node_copy(upo_bst_node_t * dst, upo_bst_node_t * src){
     if (dst == NULL || src == NULL)
         return;
     dst -> key = src -> key;
     dst -> value = src -> value;
+}
+
+upo_bst_node_t * upo_bst_delete_single_child(upo_bst_node_t * node, int destroy_data)
+{
+    upo_bst_node_t * tmp = node;
+    if (node -> right != NULL)
+        node = node -> right;
+    else 
+        node = node -> left;
+    upo_bst_destroy_node(&tmp, destroy_data); 
+    return node;
 }
 
 upo_bst_node_t * upo_bst_delete_rec(upo_bst_node_t * node, const void *key, int destroy_data, upo_bst_comparator_t key_cmp){
@@ -256,28 +269,18 @@ upo_bst_node_t * upo_bst_delete_rec(upo_bst_node_t * node, const void *key, int 
 
     if (result < 0)
         node -> left = upo_bst_delete_rec(node -> left, key, destroy_data, key_cmp);
+
     else if (result > 0)
         node -> right = upo_bst_delete_rec(node -> right, key, destroy_data, key_cmp);
-    else {
-        if (upo_bst_node_is_leave(node))
-        {
-            upo_bst_destroy_node(node, destroy_data);
-        }
-        else if (node -> left != NULL && node -> right != NULL)
+
+    else if (node -> left != NULL && node -> right != NULL)
         {
             upo_bst_node_t * predecessor = upo_bst_predecessor(node);
             upo_bst_node_copy(node, predecessor); 
             node -> left = upo_bst_delete_rec(node -> left, predecessor -> key, destroy_data, key_cmp);
         }
-        else {
-            upo_bst_node_t * tmp = node;
-            if (node -> right != NULL)
-                node = node -> right;
-            else 
-                node = node -> left;
-            free(tmp);
-        }
-    }
+    else 
+        node = upo_bst_delete_single_child(node, destroy_data);
     return node;
 }
 
@@ -287,9 +290,9 @@ void upo_bst_delete(upo_bst_t tree, const void *key, int destroy_data)
     /* If the tree is null or empty or it doesn't contain the given key, we shouldn't
      * try to delete the key as absent.
      * */
-    if (tree == NULL || upo_bst_is_empty(tree) || !upo_bst_contains(tree, key))
+    if (!upo_bst_contains(tree, key))
         return;
-    else upo_bst_delete_rec(tree -> root, key, destroy_data, tree -> key_cmp);
+    else tree -> root = upo_bst_delete_rec(tree -> root, key, destroy_data, tree -> key_cmp);
 }
 
 size_t upo_bst_size_rec(const upo_bst_node_t * node){
@@ -334,7 +337,7 @@ size_t upo_bst_height_rec(upo_bst_node_t * node)
      * because the height of a tree is by definition the max number of edges between
      * the root and the farthest leaf.
      */
-    if (node == NULL || upo_bst_node_is_leave(node))
+    if (node == NULL || upo_bst_node_is_leaf(node))
         return 0;
     else
         return 1 + upo_max_height(upo_bst_height_rec(node -> left), upo_bst_height_rec(node -> right));
