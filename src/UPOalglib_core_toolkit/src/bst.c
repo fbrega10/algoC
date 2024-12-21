@@ -230,9 +230,8 @@ void upo_bst_destroy_node(upo_bst_node_t ** node, int destroy_data){
     if (destroy_data != 0){
         free((*node) -> key);
         free((*node) -> value);
-        free(*node);
     }
-    *node = NULL;
+    free(*node);
 }
 void upo_bst_node_copy(upo_bst_node_t * dst, upo_bst_node_t * src){
     if (dst == NULL || src == NULL)
