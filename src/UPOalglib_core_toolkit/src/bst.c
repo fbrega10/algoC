@@ -97,6 +97,8 @@ upo_bst_node_t * upo_bst_new_node(void * key, void * value)
     if (node == NULL) perror("error allocating memory for new node\n");
     node -> key = key;
     node -> value = value;
+    node -> left = NULL;
+    node -> right = NULL;
     return node;
 }
 
