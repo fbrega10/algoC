@@ -212,17 +212,29 @@ upo_bst_node_t * upo_bst_max_node(upo_bst_node_t * node)
      * reference as next node.
      */
     if (node -> right == NULL)
-        return node;
+        return node -> key;
     else
         upo_bst_max_node(node -> right);
 }
 
 upo_bst_node_t * upo_bst_predecessor(upo_bst_node_t * node)
+    /*
+     * By the algorithmic definition we know that the predecessor
+     * is the righmost node of the left tree of the considered node.
+     * I assume that the current node has both children.
+     */
 {
-    if (node -> left != NULL) return upo_bst_max_node(node -> left);
+    if (node -> left != NULL)
+        return upo_bst_max_node(node -> left);
+    return NULL;
 }
 
 void upo_bst_destroy_node(upo_bst_node_t ** node, int destroy_data){
+    /*
+     * This function frees the node, optionally it will free
+     * the related key/value pointers when the destroy_data parameter
+     * is not 0.
+     */
     if (destroy_data != 0){
         free((*node) -> key);
         free((*node) -> value);
@@ -231,6 +243,9 @@ void upo_bst_destroy_node(upo_bst_node_t ** node, int destroy_data){
     *node = NULL;
 }
 void upo_bst_node_copy(upo_bst_node_t * dst, upo_bst_node_t * src){
+    /*
+     * Copies the key/value of a source node to the destination node
+     */
     if (dst == NULL || src == NULL)
         return;
     dst -> key = src -> key;
@@ -379,45 +394,89 @@ int upo_bst_is_empty(const upo_bst_t tree)
 
 /**** EXERCISE #2 - BEGIN of EXTRA OPERATIONS ****/
 
+void * upo_bst_min_rec(upo_bst_node_t * node)
+{
+    if (node -> left == NULL)
+        return node -> key;
+    else
+        return upo_bst_min_rec(node -> left);
+}
 
 void* upo_bst_min(const upo_bst_t tree)
+    /*
+     * If the tree is empty or NULL then a NULL is returned.
+     * Otherwise the leftmost leaf key is returned.
+     */
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (upo_bst_is_empty(tree))
+        return NULL;
+    return upo_bst_min_rec(tree -> root);
 }
 
 void* upo_bst_max(const upo_bst_t tree)
+    /*
+     * If the tree is empty or NULL then a NULL is returned.
+     * Otherwise the rightmost leaf key is returned.
+     */
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (upo_bst_is_empty(tree))
+        return NULL;
+    return upo_bst_max_node(tree -> root);
 }
 
 void upo_bst_delete_min(upo_bst_t tree, int destroy_data)
+    /*
+     * This function deletes the minimum leaf of the tree,
+     * if present.
+     */
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (upo_bst_is_empty(tree))
+        return;
+    void * min_node_key = upo_bst_min(tree);
+    if (min_node_key != NULL){
+        upo_bst_node_t * min_node = upo_bst_get_node(tree -> root, min_node_key, tree -> key_cmp);
+        if (min_node != NULL)
+            upo_bst_delete(tree, min_node -> key, destroy_data);
+    }
 }
 
 void upo_bst_delete_max(upo_bst_t tree, int destroy_data)
+    /*
+     * This function deletes the maximum leaf of the tree,
+     * if present.
+     */
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (upo_bst_is_empty(tree))
+        return;
+    void * max_node_key = upo_bst_max(tree);
+    if (max_node_key != NULL){
+        upo_bst_node_t * max_node = upo_bst_get_node(tree -> root, max_node_key, tree -> key_cmp);
+        if (max_node != NULL)
+            upo_bst_delete(tree, max_node -> key, destroy_data);
+    }
+}
+
+void * upo_bst_floor_rec(upo_bst_node_t * node, const void * key, upo_bst_comparator_t key_cmp){
+    if (node -> right == NULL)
+        return node -> key;
+    int cmp_result = key_cmp(node -> right -> key, key);
+    if (cmp_result >= 0)
+        return node -> key;
+    else
+        return upo_bst_floor_rec(node -> right, key, key_cmp);
 }
 
 void* upo_bst_floor(const upo_bst_t tree, const void *key)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (upo_bst_is_empty(tree) || key == NULL)
+        return NULL;
+    void * min = upo_bst_min(tree);
+    void * max = upo_bst_min(tree);
+    if (tree -> key_cmp(key, min) < 0)
+        return NULL;
+    if (tree -> key_cmp(key, max) > 0)
+        return max;
+    else return upo_bst_floor_rec(tree -> root, key, tree -> key_cmp);
 }
 
 void* upo_bst_ceiling(const upo_bst_t tree, const void *key)
