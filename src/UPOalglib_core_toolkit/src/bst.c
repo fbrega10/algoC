@@ -87,14 +87,15 @@ int upo_bst_node_is_leaf(upo_bst_node_t * node)
     return node != NULL && node -> left == NULL && node -> right == NULL;
 }
 
-upo_bst_node_t * upo_bst_new_node(void * key, void * value)
+upo_bst_node_t * upo_bst_new_node(void* key, void* value)
 {
     /*
      * A new node is allocated, having the key/value given as function 
      * parameters. If an error occurs allocating memory, then an error is thrown.
      */
     upo_bst_node_t * node = (upo_bst_node_t *) malloc(sizeof(upo_bst_node_t));
-    if (node == NULL) perror("error allocating memory for new node\n");
+    if (node == NULL)
+        perror("error allocating memory for new node\n");
     node -> key = key;
     node -> value = value;
     node -> left = NULL;
@@ -103,32 +104,21 @@ upo_bst_node_t * upo_bst_new_node(void * key, void * value)
 }
 
 
-void upo_bst_insert_rec(upo_bst_node_t * node, void *key, void *value, upo_bst_comparator_t key_cmp)
+upo_bst_node_t * upo_bst_insert_rec(upo_bst_node_t * node, void *key, void *value, upo_bst_comparator_t key_cmp)
 {
     /* We can only insert a new node whether it is a leave (necessarily)
      * Check then the value of the current leave, if our key is > than the current node value
      * it must be inserted at its right, left otherwise.
      */
-    int result = key_cmp(key, node -> key);
+    if (node == NULL)
+        return upo_bst_new_node(key, value);
 
-    if (upo_bst_node_is_leaf(node)){
-        //leaf here, put the new value in the right place
-        if (result < 0) 
-            node -> left = upo_bst_new_node(key, value);
-        else 
-            node -> right = upo_bst_new_node(key, value);
-        return;
-    }
-    else if (result < 0) {
-        if (node -> left == NULL) 
-            node -> left = upo_bst_new_node(key, value);
-        else
-            upo_bst_insert_rec(node -> left, key, value, key_cmp);
-    }
-    else if (node -> right == NULL && result >= 0)
-        node -> right = upo_bst_new_node(key, value);
-    else
-        upo_bst_insert_rec(node -> right, key, value, key_cmp);
+    int result = key_cmp(key, node -> key);
+    if (result < 0)
+        node -> left = upo_bst_insert_rec(node -> left, key, value, key_cmp);
+    else if (result > 0) 
+        node -> right = upo_bst_insert_rec(node -> right, key, value, key_cmp);
+    return node;
 }
 
 void upo_bst_insert(upo_bst_t tree, void *key, void *value)
@@ -139,11 +129,8 @@ void upo_bst_insert(upo_bst_t tree, void *key, void *value)
      * If it does contain already the value, nothing is done.
      * If it doesn't contain it, then insert it recursevily in the right place.
      */
-    if (tree == NULL) return;
-    if (upo_bst_is_empty(tree))
-        tree -> root = upo_bst_new_node(key, value);
-    else if (!upo_bst_contains(tree, key))
-        upo_bst_insert_rec(tree -> root, key, value, tree -> key_cmp);
+    if (tree == NULL || key == NULL) return;
+    tree -> root = upo_bst_insert_rec(tree -> root, key, value, tree -> key_cmp);
 }
 
 upo_bst_node_t * upo_bst_get_node(upo_bst_node_t * node, const void *key, upo_bst_comparator_t key_cmp){
@@ -154,8 +141,9 @@ upo_bst_node_t * upo_bst_get_node(upo_bst_node_t * node, const void *key, upo_bs
     if (node == NULL) return NULL;
     int result = key_cmp(key, node -> key);
     if (result == 0) return node;
-    if (result < 0) return upo_bst_get_node(node -> left, key, key_cmp);
-    if (result > 0) return upo_bst_get_node(node -> right, key, key_cmp);
+    if (result < 0)
+        return upo_bst_get_node(node -> left, key, key_cmp);
+    else return upo_bst_get_node(node -> right, key, key_cmp);
 }
 
 void* upo_bst_get(const upo_bst_t tree, const void *key)
@@ -171,6 +159,25 @@ void* upo_bst_get(const upo_bst_t tree, const void *key)
         return NULL;
 }
 
+void* upo_bst_put_rec(upo_bst_node_t * node, void *key, void *value, void *old_value, upo_bst_comparator_t key_cmp)
+{
+    old_value = NULL;
+
+    if (node == NULL)
+        return upo_bst_new_node(key, value);
+    int result = key_cmp(key, node -> key);
+
+    if (result < 0)
+        node -> left = upo_bst_put_rec(node -> left, key, value, old_value, key_cmp);
+    else if (result > 0)
+        node -> right = upo_bst_put_rec(node -> right, key, value, old_value, key_cmp);
+    else {
+        old_value = node -> value;
+        node -> value = value;
+    }
+    return node;
+}
+
 void* upo_bst_put(upo_bst_t tree, void *key, void *value)
     /*
      * If the node doesn't exist, then it is created and inserted.
@@ -179,15 +186,11 @@ void* upo_bst_put(upo_bst_t tree, void *key, void *value)
      * and the old value is returned.
      */
 {
-    if (tree == NULL) return NULL;
-    if (! upo_bst_is_empty(tree) && upo_bst_contains(tree, key)){
-        upo_bst_node_t * node = upo_bst_get_node(tree -> root, key, tree -> key_cmp);
-        void * old_value = node -> value;
-        node -> value = value;
-        return old_value;
-    } 
-    else upo_bst_insert(tree, key, value);
-    return value;
+    void * old_value = NULL;
+    if (tree == NULL)
+        return NULL;
+    tree -> root = upo_bst_put_rec(tree -> root, key, value, old_value, tree -> key_cmp);
+    return old_value;
 }
 
 int upo_bst_contains(const upo_bst_t tree, const void *key)
@@ -219,21 +222,12 @@ upo_bst_node_t * upo_bst_predecessor(upo_bst_node_t * node)
     if (node -> left != NULL) return upo_bst_max_node(node -> left);
 }
 
-upo_bst_node_t * upo_bst_predecessors_father(upo_bst_node_t * node, upo_bst_node_t * son){
-    /*
-     * Returns the father of the predecessor, which has at it's right the predecessor.
-     */
-    if (node == NULL) return NULL;
-    if (node -> right == son) return node;
-    else upo_bst_predecessors_father(node -> right, son);
-}
-
 void upo_bst_destroy_node(upo_bst_node_t ** node, int destroy_data){
     if (destroy_data != 0){
         free((*node) -> key);
         free((*node) -> value);
-        free(*node);
     }
+    free(*node);
     *node = NULL;
 }
 void upo_bst_node_copy(upo_bst_node_t * dst, upo_bst_node_t * src){
@@ -241,17 +235,6 @@ void upo_bst_node_copy(upo_bst_node_t * dst, upo_bst_node_t * src){
         return;
     dst -> key = src -> key;
     dst -> value = src -> value;
-}
-
-upo_bst_node_t * upo_bst_delete_single_child(upo_bst_node_t * node, int destroy_data)
-{
-    upo_bst_node_t * tmp = node;
-    if (node -> right != NULL)
-        node = node -> right;
-    else 
-        node = node -> left;
-    upo_bst_destroy_node(&tmp, destroy_data); 
-    return node;
 }
 
 upo_bst_node_t * upo_bst_delete_rec(upo_bst_node_t * node, const void *key, int destroy_data, upo_bst_comparator_t key_cmp){
@@ -281,8 +264,14 @@ upo_bst_node_t * upo_bst_delete_rec(upo_bst_node_t * node, const void *key, int 
             upo_bst_node_copy(node, predecessor); 
             node -> left = upo_bst_delete_rec(node -> left, predecessor -> key, destroy_data, key_cmp);
         }
-    else 
-        node = upo_bst_delete_single_child(node, destroy_data);
+    else {
+        upo_bst_node_t * tmp = node;
+        if (node -> right != NULL)
+            node = node -> right;
+        else
+            node = node -> left;
+        upo_bst_destroy_node(&tmp, destroy_data);
+    }
     return node;
 }
 
@@ -316,7 +305,7 @@ size_t upo_bst_size(const upo_bst_t tree)
      * that it contains, so we must count each one to get the correct size.
      * We do this recursively counting each valid node in upo_bst_size_rec
      */
-    if (tree == NULL || upo_bst_is_empty(tree))
+    if (upo_bst_is_empty(tree))
         return 0;
     return upo_bst_size_rec(tree -> root);
 }
