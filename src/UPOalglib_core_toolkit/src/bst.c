@@ -457,21 +457,33 @@ void upo_bst_delete_max(upo_bst_t tree, int destroy_data)
 }
 
 void * upo_bst_floor_rec(upo_bst_node_t * node, const void * key, upo_bst_comparator_t key_cmp){
-    if (node -> right == NULL)
+
+    if (node == NULL)
+        return NULL;
+
+    int cmp_result = key_cmp(node -> key, key);
+
+    if (cmp_result == 0)
         return node -> key;
-    int cmp_result = key_cmp(node -> right -> key, key);
-    if (cmp_result >= 0)
-        return node -> key;
+    if (cmp_result < 0)
+    {
+        void * right_res = upo_bst_floor_rec(node -> right, key, key_cmp);
+        return right_res ? right_res : node -> key;
+    }
     else
-        return upo_bst_floor_rec(node -> right, key, key_cmp);
+        return upo_bst_floor_rec(node -> left, key, key_cmp); 
 }
 
 void* upo_bst_floor(const upo_bst_t tree, const void *key)
 {
     if (upo_bst_is_empty(tree) || key == NULL)
         return NULL;
+    if (upo_bst_contains(tree, key)){
+        return (upo_bst_get_node(tree -> root, key, tree -> key_cmp)) -> key;
+    }
     void * min = upo_bst_min(tree);
-    void * max = upo_bst_min(tree);
+    void * max = upo_bst_max(tree);
+
     if (tree -> key_cmp(key, min) < 0)
         return NULL;
     if (tree -> key_cmp(key, max) > 0)
@@ -479,12 +491,46 @@ void* upo_bst_floor(const upo_bst_t tree, const void *key)
     else return upo_bst_floor_rec(tree -> root, key, tree -> key_cmp);
 }
 
+void * upo_bst_ceiling_rec(upo_bst_node_t * node, const void * key, upo_bst_comparator_t key_cmp){
+
+    if (node == NULL)
+        return NULL;
+
+    int cmp_result = key_cmp(node -> key, key);
+
+    if (cmp_result == 0)
+        return node -> key;
+
+    if (cmp_result > 0){
+        void * left_value = upo_bst_ceiling_rec(node -> left, key, key_cmp);
+        return left_value ? left_value : node -> key;
+    }
+    else return upo_bst_ceiling_rec(node -> right, key, key_cmp);
+}
+
 void* upo_bst_ceiling(const upo_bst_t tree, const void *key)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    /*
+     * The ceiling function retrieves the smallest key in the
+     * tree that is > than the current given input key.
+     * If it is contained, than the key is returned.
+     */
+    if (upo_bst_is_empty(tree) || key == NULL)
+        return NULL;
+
+    if (upo_bst_contains(tree, key)){
+        return (upo_bst_get_node(tree -> root, key, tree -> key_cmp)) -> key;
+    }
+
+    void * min = upo_bst_min(tree);
+    void * max = upo_bst_max(tree);
+
+    if (tree -> key_cmp(key, min) < 0)
+        return min;
+    if (tree -> key_cmp(key, max) > 0)
+        return NULL;
+
+    else return upo_bst_ceiling_rec(tree -> root, key, tree -> key_cmp);
 }
 
 upo_bst_key_list_t upo_bst_keys_range(const upo_bst_t tree, const void *low_key, const void *high_key)
