@@ -537,7 +537,7 @@ upo_bst_key_list_t upo_bst_initialize_list() {
     /*
      * Utility function to create a new node for the list
      */
-    upo_bst_key_list_t keys_list = (upo_bst_key_list_t) malloc(sizeof(upo_bst_key_list_node_t));
+    upo_bst_key_list_t keys_list = (upo_bst_key_list_t) malloc(sizeof(*keys_list));
     if (keys_list == NULL)
         perror("\nerror allocating memory for keys_list\n");
     keys_list -> next = NULL;
@@ -545,12 +545,11 @@ upo_bst_key_list_t upo_bst_initialize_list() {
     return keys_list;
 }
 
-upo_bst_key_list_t upo_find_keys_tail(upo_bst_key_list_t tail){
-    if (tail == NULL)
-        return NULL;
-    while (tail -> next != NULL)
-        tail = tail -> next;
-    return tail;
+void upo_find_keys_tail(upo_bst_key_list_t * tail){
+    if (*tail == NULL)
+        return;
+    while ((*tail) -> next != NULL)
+        *tail = (*tail) -> next;
 }
 
 void upo_bst_keys_range_rec(upo_bst_node_t * node, const void *low_key, const void *high_key, upo_bst_comparator_t key_cmp, upo_bst_key_list_t keys_list){
@@ -562,9 +561,10 @@ void upo_bst_keys_range_rec(upo_bst_node_t * node, const void *low_key, const vo
 
     if (key_cmp(node -> key, low_key) >= 0 && key_cmp(node -> key, high_key) <= 0){
 
-        keys_list = upo_find_keys_tail(keys_list);
-        keys_list -> key = node -> key;
-        keys_list -> next = upo_bst_initialize_list();
+        upo_bst_key_list_t tail = keys_list;
+        upo_find_keys_tail(&tail);
+        tail -> key = node -> key;
+        tail -> next = upo_bst_initialize_list();
     }
     upo_bst_keys_range_rec(node -> right, low_key, high_key, key_cmp, keys_list);
 }
@@ -589,7 +589,8 @@ void upo_bst_keys_rec(upo_bst_node_t * node, upo_bst_key_list_t keys_list){
 
     upo_bst_keys_rec(node -> left, keys_list);
 
-    upo_bst_key_list_t tail = upo_find_keys_tail(keys_list);
+    upo_bst_key_list_t tail = keys_list;
+    upo_find_keys_tail(&tail);
     tail -> key = node -> key;
     tail -> next = upo_bst_initialize_list();
 
