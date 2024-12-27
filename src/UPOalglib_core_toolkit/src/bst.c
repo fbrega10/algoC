@@ -421,7 +421,7 @@ void* upo_bst_max(const upo_bst_t tree)
 {
     if (upo_bst_is_empty(tree))
         return NULL;
-    return upo_bst_max_node(tree -> root);
+    return upo_bst_max_node(tree -> root) -> key;
 }
 
 void upo_bst_delete_min(upo_bst_t tree, int destroy_data)
