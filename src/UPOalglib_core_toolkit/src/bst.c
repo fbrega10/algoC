@@ -212,7 +212,7 @@ upo_bst_node_t * upo_bst_max_node(upo_bst_node_t * node)
      * reference as next node.
      */
     if (node -> right == NULL)
-        return node -> key;
+        return node;
     else
         upo_bst_max_node(node -> right);
 }
