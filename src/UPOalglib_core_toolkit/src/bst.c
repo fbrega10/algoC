@@ -562,7 +562,8 @@ void upo_bst_keys_range_rec(upo_bst_node_t * node, const void *low_key, const vo
     if (key_cmp(node -> key, low_key) >= 0 && key_cmp(node -> key, high_key) <= 0){
 
         upo_bst_key_list_t tail = keys_list;
-        upo_find_keys_tail(&tail);
+        while (tail -> next != NULL)
+            tail = tail -> next;
         tail -> key = node -> key;
         tail -> next = upo_bst_initialize_list();
     }
@@ -590,7 +591,8 @@ void upo_bst_keys_rec(upo_bst_node_t * node, upo_bst_key_list_t keys_list){
     upo_bst_keys_rec(node -> left, keys_list);
 
     upo_bst_key_list_t tail = keys_list;
-    upo_find_keys_tail(&tail);
+    while (tail -> next != NULL)
+        tail = tail -> next;
     tail -> key = node -> key;
     tail -> next = upo_bst_initialize_list();
 
