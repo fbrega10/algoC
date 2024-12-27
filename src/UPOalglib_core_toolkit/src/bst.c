@@ -533,15 +533,15 @@ void* upo_bst_ceiling(const upo_bst_t tree, const void *key)
     else return upo_bst_ceiling_rec(tree -> root, key, tree -> key_cmp);
 }
 
-upo_bst_key_list_t upo_bst_initialize_list() {
+upo_bst_key_list_t upo_bst_initialize_list(void* key) {
     /*
      * Utility function to create a new node for the list
      */
-    upo_bst_key_list_t keys_list = (upo_bst_key_list_t) malloc(sizeof(*keys_list));
+    upo_bst_key_list_t keys_list = malloc(sizeof(upo_bst_key_list_node_t));
     if (keys_list == NULL)
         perror("\nerror allocating memory for keys_list\n");
     keys_list -> next = NULL;
-    keys_list -> key = NULL;
+    keys_list -> key = key;
     return keys_list;
 }
 
@@ -552,7 +552,7 @@ void upo_find_keys_tail(upo_bst_key_list_t * tail){
         *tail = (*tail) -> next;
 }
 
-void upo_bst_keys_range_rec(upo_bst_node_t * node, const void *low_key, const void *high_key, upo_bst_comparator_t key_cmp, upo_bst_key_list_t keys_list){
+void upo_bst_keys_range_rec(upo_bst_node_t * node, const void *low_key, const void *high_key, upo_bst_comparator_t key_cmp, upo_bst_key_list_t * keys_list){
 
     if (node == NULL)
         return;
@@ -561,11 +561,17 @@ void upo_bst_keys_range_rec(upo_bst_node_t * node, const void *low_key, const vo
 
     if (key_cmp(node -> key, low_key) >= 0 && key_cmp(node -> key, high_key) <= 0){
 
-        upo_bst_key_list_t tail = keys_list;
-        while (tail -> next != NULL)
-            tail = tail -> next;
-        tail -> key = node -> key;
-        tail -> next = upo_bst_initialize_list();
+        upo_bst_key_list_t tail = *keys_list;
+        upo_bst_key_list_t new_node = upo_bst_initialize_list(node -> key);
+
+        if (tail == NULL){
+            *keys_list = new_node;
+        }
+        else {
+            while (tail -> next != NULL)
+                tail = tail -> next;
+            tail -> next = new_node;
+        }
     }
     upo_bst_keys_range_rec(node -> right, low_key, high_key, key_cmp, keys_list);
 }
@@ -574,13 +580,13 @@ upo_bst_key_list_t upo_bst_keys_range(const upo_bst_t tree, const void *low_key,
 {
     if (upo_bst_is_empty(tree))
         return NULL;
-    upo_bst_key_list_t keys_list = upo_bst_initialize_list();
-    upo_bst_keys_range_rec(tree -> root, low_key, high_key, tree -> key_cmp, keys_list);
+    upo_bst_key_list_t keys_list = NULL;
+    upo_bst_keys_range_rec(tree -> root, low_key, high_key, tree -> key_cmp, &keys_list);
     return keys_list;
 }
 
 
-void upo_bst_keys_rec(upo_bst_node_t * node, upo_bst_key_list_t keys_list){
+void upo_bst_keys_rec(upo_bst_node_t* node, upo_bst_key_list_t* keys_list){
     /*
      * base case: leaf here
      * Visit in pre-order
@@ -590,11 +596,17 @@ void upo_bst_keys_rec(upo_bst_node_t * node, upo_bst_key_list_t keys_list){
 
     upo_bst_keys_rec(node -> left, keys_list);
 
-    upo_bst_key_list_t tail = keys_list;
-    while (tail -> next != NULL)
-        tail = tail -> next;
-    tail -> key = node -> key;
-    tail -> next = upo_bst_initialize_list();
+    upo_bst_key_list_t tail = *keys_list;
+    upo_bst_key_list_t new_node = upo_bst_initialize_list(node -> key);
+
+    if (tail == NULL){
+        *keys_list = new_node;
+    }
+    else {
+        while (tail -> next != NULL)
+            tail = tail -> next;
+        tail -> next = new_node;
+    }
 
     upo_bst_keys_rec(node -> right, keys_list);
 }
@@ -607,8 +619,8 @@ upo_bst_key_list_t upo_bst_keys(const upo_bst_t tree)
 {
     if (upo_bst_is_empty(tree))
         return NULL;
-    upo_bst_key_list_t keys_list = upo_bst_initialize_list();
-    upo_bst_keys_rec(tree -> root, keys_list);
+    upo_bst_key_list_t keys_list = NULL;
+    upo_bst_keys_rec(tree -> root, &keys_list);
     return keys_list;
 }
 
