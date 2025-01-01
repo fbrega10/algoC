@@ -143,16 +143,8 @@ void* upo_ht_sepchain_put(upo_ht_sepchain_t ht, void *key, void *value)
     void *old_value = NULL;
 
     size_t hash_result = ht -> key_hash(key, ht -> capacity);
-    //printf("\ncalculated hash result : %ld\n", hash_result);
-
-    //error here : upo_ht_sepchain_list_node_t is null
 
     upo_ht_sepchain_list_node_t * collision_head = ht -> slots[hash_result].head;
-    if (collision_head == NULL){
-        ht -> slots[hash_result].head = upo_new_list_node_t(key, value);
-        ht -> size += 1;
-        return value;
-    }
     while (collision_head != NULL && ht -> key_cmp(collision_head -> key, key) != 0)
         collision_head = collision_head -> next;
 
@@ -161,8 +153,7 @@ void* upo_ht_sepchain_put(upo_ht_sepchain_t ht, void *key, void *value)
         collision_head -> value = value;
     }
     else{
-        collision_head = upo_new_list_node_t(key, value);
-        //printf("\n Inserted new key : %d \n", *((int*)key));
+        ht -> slots[hash_result].head = upo_new_list_node_t(key, value);
         old_value = value;
         ht -> size += 1;
     }
@@ -185,10 +176,8 @@ void* upo_ht_sepchain_get(const upo_ht_sepchain_t ht, const void *key)
 
     // calculates the hash value and indexes the array
     size_t hash_result = ht -> key_hash(key, ht -> capacity);
-    //printf("\nhash result : %ld\n", hash_result);
     upo_ht_sepchain_list_node_t * collision_head = ((ht -> slots)[hash_result]).head;
 
-    //printf("\nhash collision_head value : %d\n", *((int*)(collision_head -> key)));
     while (collision_head != NULL && ht -> key_cmp(collision_head -> key, key) != 0)
         collision_head = collision_head -> next;
 
@@ -201,7 +190,6 @@ int upo_ht_sepchain_contains(const upo_ht_sepchain_t ht, const void *key)
 {
     if (ht == NULL || key == NULL)
         return 0;
-    // calculates the hash value and indexes the array
     size_t hash_result = ht -> key_hash(key, ht -> capacity);
     upo_ht_sepchain_list_node_t * collision_head = ((ht -> slots)[hash_result]).head;
 
@@ -215,7 +203,6 @@ void upo_ht_sepchain_delete(upo_ht_sepchain_t ht, const void *key, int destroy_d
 
     if (ht == NULL || key == NULL)
         return;
-    // calculates the hash value and indexes the array
     size_t hash_result = ht -> key_hash(key, ht -> capacity);
 
     upo_ht_sepchain_list_node_t * collision_head = ((ht -> slots)[hash_result]).head;
