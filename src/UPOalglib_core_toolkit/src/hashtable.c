@@ -127,7 +127,6 @@ upo_ht_sepchain_list_node_t * upo_new_list_node_t(void *key, void* value)
 
     if (new == NULL)
         perror("unable to allocate memory for upo_new_list_node_t function");
-
     new -> key = key;
     new -> value = value;
     new -> next = NULL;
@@ -145,15 +144,25 @@ void* upo_ht_sepchain_put(upo_ht_sepchain_t ht, void *key, void *value)
     size_t hash_result = ht -> key_hash(key, ht -> capacity);
 
     upo_ht_sepchain_list_node_t * collision_head = ht -> slots[hash_result].head;
-    while (collision_head != NULL && ht -> key_cmp(collision_head -> key, key) != 0)
+    upo_ht_sepchain_list_node_t * p = collision_head;
+
+    if (collision_head == NULL){
+        ht -> slots[hash_result].head = upo_new_list_node_t(key, value);
+        ht -> size += 1;
+        return old_value;
+    }
+
+    while (collision_head != NULL && ht -> key_cmp(collision_head -> key, key) != 0){
+        p = collision_head;
         collision_head = collision_head -> next;
+    }
 
     if (collision_head != NULL){
         old_value = collision_head -> value;
         collision_head -> value = value;
     }
     else{
-        ht -> slots[hash_result].head = upo_new_list_node_t(key, value);
+        p-> next = upo_new_list_node_t(key, value);
         old_value = value;
         ht -> size += 1;
     }
@@ -182,6 +191,7 @@ void upo_ht_sepchain_insert(upo_ht_sepchain_t ht, void *key, void *value)
 {
     if (ht == NULL || key == NULL || value == NULL)
         return;
+
     void * searched_key_value = upo_ht_sepchain_get(ht, key);
     if (searched_key_value == NULL)
         upo_ht_sepchain_put(ht, key, value);
