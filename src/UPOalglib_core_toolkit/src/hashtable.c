@@ -121,14 +121,51 @@ void upo_ht_sepchain_clear(upo_ht_sepchain_t ht, int destroy_data)
     }
 }
 
+upo_ht_sepchain_list_node_t * upo_new_list_node_t(void *key, void* value)
+{
+    upo_ht_sepchain_list_node_t * new = (upo_ht_sepchain_list_node_t *)malloc(sizeof(upo_ht_sepchain_list_node_t)); 
+
+    if (new == NULL)
+        perror("unable to allocate memory for upo_new_list_node_t function");
+
+    new -> key = key;
+    new -> value = value;
+    new -> next = NULL;
+    return new;
+}
+
 void* upo_ht_sepchain_put(upo_ht_sepchain_t ht, void *key, void *value)
 {
+
+    if (ht == NULL || key == NULL || value == NULL)
+        return NULL;
+
     void *old_value = NULL;
 
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    size_t hash_result = ht -> key_hash(key, ht -> capacity);
+    //printf("\ncalculated hash result : %ld\n", hash_result);
+
+    //error here : upo_ht_sepchain_list_node_t is null
+
+    upo_ht_sepchain_list_node_t * collision_head = ht -> slots[hash_result].head;
+    if (collision_head == NULL){
+        ht -> slots[hash_result].head = upo_new_list_node_t(key, value);
+        ht -> size += 1;
+        return value;
+    }
+    while (collision_head != NULL && ht -> key_cmp(collision_head -> key, key) != 0)
+        collision_head = collision_head -> next;
+
+    if (collision_head != NULL){
+        old_value = collision_head -> value;
+        collision_head -> value = value;
+    }
+    else{
+        collision_head = upo_new_list_node_t(key, value);
+        //printf("\n Inserted new key : %d \n", *((int*)key));
+        old_value = value;
+        ht -> size += 1;
+    }
 
     return old_value;
 }
@@ -143,34 +180,77 @@ void upo_ht_sepchain_insert(upo_ht_sepchain_t ht, void *key, void *value)
 
 void* upo_ht_sepchain_get(const upo_ht_sepchain_t ht, const void *key)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (ht == NULL || key == NULL)
+        return NULL;
+
+    // calculates the hash value and indexes the array
+    size_t hash_result = ht -> key_hash(key, ht -> capacity);
+    //printf("\nhash result : %ld\n", hash_result);
+    upo_ht_sepchain_list_node_t * collision_head = ((ht -> slots)[hash_result]).head;
+
+    //printf("\nhash collision_head value : %d\n", *((int*)(collision_head -> key)));
+    while (collision_head != NULL && ht -> key_cmp(collision_head -> key, key) != 0)
+        collision_head = collision_head -> next;
+
+    if (collision_head != NULL)
+        return collision_head -> value;
+    return NULL;
 }
 
 int upo_ht_sepchain_contains(const upo_ht_sepchain_t ht, const void *key)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (ht == NULL || key == NULL)
+        return 0;
+    // calculates the hash value and indexes the array
+    size_t hash_result = ht -> key_hash(key, ht -> capacity);
+    upo_ht_sepchain_list_node_t * collision_head = ((ht -> slots)[hash_result]).head;
+
+    while (collision_head != NULL && ht -> key_cmp(collision_head -> key, key) != 0)
+        collision_head = collision_head -> next;
+    return collision_head != NULL ? 1: 0;
 }
 
 void upo_ht_sepchain_delete(upo_ht_sepchain_t ht, const void *key, int destroy_data)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+
+    if (ht == NULL || key == NULL)
+        return;
+    // calculates the hash value and indexes the array
+    size_t hash_result = ht -> key_hash(key, ht -> capacity);
+
+    upo_ht_sepchain_list_node_t * collision_head = ((ht -> slots)[hash_result]).head;
+    upo_ht_sepchain_list_node_t * p = NULL;
+
+    while (collision_head != NULL && ht -> key_cmp(collision_head -> key, key) != 0)
+    {
+        p = collision_head;
+        collision_head = collision_head -> next;
+    }
+
+    if (collision_head != NULL){
+        if (p == NULL)
+        {
+            ((ht -> slots)[hash_result]).head = collision_head -> next;
+        }
+        else
+        {
+            p -> next = collision_head -> next;
+        }
+        if (destroy_data != 0){
+            free(collision_head -> key);
+            free(collision_head -> value);
+        }
+        free(collision_head);
+        ht -> size -= 1;
+    }
+
 }
 
 size_t upo_ht_sepchain_size(const upo_ht_sepchain_t ht)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (ht != NULL)
+        return ht -> size;
+    return 0;
 }
 
 int upo_ht_sepchain_is_empty(const upo_ht_sepchain_t ht)
