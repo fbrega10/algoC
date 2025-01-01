@@ -161,13 +161,6 @@ void* upo_ht_sepchain_put(upo_ht_sepchain_t ht, void *key, void *value)
     return old_value;
 }
 
-void upo_ht_sepchain_insert(upo_ht_sepchain_t ht, void *key, void *value)
-{
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
-}
 
 void* upo_ht_sepchain_get(const upo_ht_sepchain_t ht, const void *key)
 {
@@ -184,6 +177,14 @@ void* upo_ht_sepchain_get(const upo_ht_sepchain_t ht, const void *key)
     if (collision_head != NULL)
         return collision_head -> value;
     return NULL;
+}
+void upo_ht_sepchain_insert(upo_ht_sepchain_t ht, void *key, void *value)
+{
+    if (ht == NULL || key == NULL || value == NULL)
+        return;
+    void * searched_key_value = upo_ht_sepchain_get(ht, key);
+    if (searched_key_value == NULL)
+        upo_ht_sepchain_put(ht, key, value);
 }
 
 int upo_ht_sepchain_contains(const upo_ht_sepchain_t ht, const void *key)
