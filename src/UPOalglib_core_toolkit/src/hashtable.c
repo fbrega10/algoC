@@ -492,10 +492,41 @@ void upo_ht_linprob_resize(upo_ht_linprob_t ht, size_t n)
 
 upo_ht_key_list_t upo_ht_sepchain_keys(const upo_ht_sepchain_t ht)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (ht == NULL)
+        return NULL;
+
+    upo_ht_key_list_t append_list = NULL;
+    upo_ht_key_list_t tail_list = append_list;
+
+    for (size_t i = 0; i < ht->capacity; ++i)
+    {
+        upo_ht_sepchain_list_node_t *list = NULL;
+
+        list = ht->slots[i].head;
+        while (list != NULL)
+        {
+            if (tail_list == NULL){
+                tail_list = malloc(sizeof(upo_ht_key_list_t));
+                if (tail_list == NULL)
+                    perror("unable to allocate memory\n");
+                tail_list -> key = list -> key;
+                tail_list -> next = NULL;
+                append_list = tail_list;
+            }
+            else{
+                upo_ht_key_list_t new_node = malloc(sizeof(upo_ht_key_list_t));
+                if (new_node == NULL)
+                    perror("unable to allocate memory\n");
+                new_node -> key = list -> key;
+                new_node -> next = NULL;
+                tail_list -> next = new_node;
+                tail_list = tail_list -> next;
+            }
+            list = list->next;
+        }
+    }
+
+    return append_list;
 }
 
 void upo_ht_sepchain_traverse(const upo_ht_sepchain_t ht, upo_ht_visitor_t visit, void *visit_context)
