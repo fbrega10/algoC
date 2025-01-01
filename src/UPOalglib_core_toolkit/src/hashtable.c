@@ -525,16 +525,24 @@ upo_ht_key_list_t upo_ht_sepchain_keys(const upo_ht_sepchain_t ht)
             list = list->next;
         }
     }
-
     return append_list;
 }
 
 void upo_ht_sepchain_traverse(const upo_ht_sepchain_t ht, upo_ht_visitor_t visit, void *visit_context)
 {
-    /* TO STUDENTS:
-     *  Remove the following two lines and put here your implementation. */
-    fprintf(stderr, "To be implemented!\n");
-    abort();
+    if (ht == NULL || visit == NULL || visit_context == NULL)
+        return;
+    for (size_t i = 0; i < ht->capacity; ++i)
+    {
+        upo_ht_sepchain_list_node_t *list = NULL;
+
+        list = ht->slots[i].head;
+        while (list != NULL)
+        {
+            visit(list -> key, list-> value, visit_context);
+            list = list->next;
+        }
+    }
 }
 
 upo_ht_key_list_t upo_ht_linprob_keys(const upo_ht_linprob_t ht)
