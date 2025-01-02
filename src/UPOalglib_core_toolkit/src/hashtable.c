@@ -395,21 +395,23 @@ void* upo_ht_linprob_put(upo_ht_linprob_t ht, void *key, void *value)
     if (ht == NULL || key == NULL || value == NULL)
         return NULL;
 
-    if (upo_ht_linprob_capacity(ht) >= 0.5)
+    if (upo_ht_linprob_load_factor(ht) >= 0.5)
         upo_ht_linprob_resize(ht, ht -> capacity * 2);
 
     size_t i = 0;
-    size_t hash = ht -> key_hash(key, i);
+    size_t ht_capacity = ht -> capacity;
+    size_t hash = ht -> key_hash(key, ht_capacity);
     size_t hash_tomb = hash;
     int found_tomb = 0;
-    while ( ht -> key_cmp(ht -> slots[hash].key, key) != 0 || ht -> slots[hash].tombstone == 1)
+
+    while ( (ht -> slots[hash].key != NULL && ht -> key_cmp(ht -> slots[hash].key, key) != 0) || (ht -> slots[hash].tombstone == 1) )
     {
         if (ht -> slots[hash].tombstone == 1 && found_tomb == 0)
         {
             found_tomb = 1;
             hash_tomb = hash;
         }
-        hash = ht -> key_hash(key, ++i);
+        hash = (ht -> key_hash(key, ht_capacity) + (++i)) % ht_capacity;
     }
 
     if (ht -> slots[hash].key == NULL){
@@ -432,10 +434,13 @@ void* upo_ht_linprob_get(const upo_ht_linprob_t ht, const void *key)
 {
     if (ht == NULL || key == NULL)
         return NULL;
+
     size_t i = 0;
-    size_t hash = ht -> key_hash(key,i);
-    while (ht -> key_cmp(ht -> slots[hash].key, key) == 0 || !(ht -> slots[hash].tombstone) )
-        hash = ht -> key_hash(key, ++i);
+    size_t capacity = ht -> capacity;
+    size_t hash = ht -> key_hash(key, capacity);
+
+    while ((ht -> slots[hash].key != NULL && ht -> key_cmp(ht -> slots[hash].key, key) != 0) || (ht -> slots[hash].tombstone == 1) )
+        hash = (ht -> key_hash(key, capacity) + (++i)) % capacity;
     return ht -> slots[hash].value;
 }
 
@@ -459,9 +464,10 @@ void upo_ht_linprob_delete(upo_ht_linprob_t ht, const void *key, int destroy_dat
     if (ht == NULL || key == NULL)
         return;
     size_t i = 0;
-    size_t hash = ht -> key_hash(key, i);
+    size_t capacity = ht -> capacity;
+    size_t hash = ht -> key_hash(key, capacity);
     while ((ht -> slots[hash].key != NULL && ht -> key_cmp(ht -> slots[hash].key, key) != 0) || ht -> slots[hash].tombstone == 1)
-        hash = ht -> key_hash(key, ++i);
+        hash = (ht -> key_hash(key, capacity) + (++i)) % capacity;
     if (ht -> slots[hash].key != NULL){
         if (destroy_data != 0)
         {
