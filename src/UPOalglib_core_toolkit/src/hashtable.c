@@ -29,8 +29,6 @@
 #include <upo/utility.h>
 
 
-/*** EXERCISE #1 - BEGIN of HASH TABLE with SEPARATE CHAINING ***/
-
 
 upo_ht_sepchain_t upo_ht_sepchain_create(size_t m, upo_ht_hasher_t key_hash, upo_ht_comparator_t key_cmp)
 {
@@ -276,11 +274,6 @@ upo_ht_hasher_t upo_ht_sepchain_get_hasher(const upo_ht_sepchain_t ht)
     return ht->key_hash;
 }
 
-
-/*** EXERCISE #1 - END of HASH TABLE with SEPARATE CHAINING ***/
-
-
-/*** EXERCISE #2 - BEGIN of HASH TABLE with LINEAR PROBING ***/
 
 size_t upo_ht_linprob_size(const upo_ht_linprob_t ht)
 {
@@ -533,12 +526,6 @@ void upo_ht_linprob_resize(upo_ht_linprob_t ht, size_t n)
 }
 
 
-/*** EXERCISE #2 - END of HASH TABLE with LINEAR PROBING ***/
-
-
-/*** EXERCISE #3 - BEGIN of HASH TABLE - EXTRA OPERATIONS ***/
-
-
 upo_ht_key_list_t upo_ht_sepchain_keys(const upo_ht_sepchain_t ht)
 {
     if (ht == NULL)
@@ -629,16 +616,13 @@ upo_ht_key_list_t upo_ht_linprob_keys(const upo_ht_linprob_t ht)
 void upo_ht_linprob_traverse(const upo_ht_linprob_t ht, upo_ht_visitor_t visit, void *visit_context)
 {
     if (ht == NULL)
-        return NULL;
+        return;
     for (size_t i = 0; i < ht->capacity; ++i)
     {
         if (ht -> slots[i].key != NULL)
             visit(ht -> slots[i].key, ht -> slots[i].value, visit_context);
     }
 }
-
-
-/*** EXERCISE #3 - END of HASH TABLE - EXTRA OPERATIONS ***/
 
 
 /*** BEGIN of HASH FUNCTIONS ***/
