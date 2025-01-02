@@ -24,8 +24,6 @@
 #include <stdlib.h>
 
 
-/**** EXERCISE #1 - BEGIN of FUNDAMENTAL OPERATIONS ****/
-
 
 upo_bst_t upo_bst_create(upo_bst_comparator_t key_cmp)
 {
@@ -389,11 +387,6 @@ int upo_bst_is_empty(const upo_bst_t tree)
 }
 
 
-/**** EXERCISE #1 - END of FUNDAMENTAL OPERATIONS ****/
-
-
-/**** EXERCISE #2 - BEGIN of EXTRA OPERATIONS ****/
-
 void * upo_bst_min_rec(upo_bst_node_t * node)
 {
     if (node -> left == NULL)
@@ -645,9 +638,6 @@ int upo_bst_is_bst(const upo_bst_t tree, const void *min_key, const void *max_ke
 {
     return upo_bst_is_bst_impl(tree -> root, min_key, max_key, tree -> key_cmp);
 }
-
-
-/**** EXERCISE #2 - END of EXTRA OPERATIONS ****/
 
 
 upo_bst_comparator_t upo_bst_get_comparator(const upo_bst_t tree)
