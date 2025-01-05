@@ -98,10 +98,38 @@ void upo_merge_sort(void *base, size_t n, size_t size, upo_sort_comparator_t cmp
     upo_merge_sort_rec(base, 0, n - 1, size, cmp);
 }
 
+size_t upo_partition(void *base, size_t left, size_t right, size_t size, upo_sort_comparator_t cmp){
+    size_t p = left;
+    size_t i = left + 1;
+    size_t j = right;
+    unsigned char * ptr = base;
+    while(1){
+        while (i < right && cmp(ptr + i * size, ptr + p * size) < 0)
+            ++i;
 
+        while (j > left && cmp(ptr + j * size, ptr + p * size) > 0)
+            --j;
 
+        if (i >= j)
+            break;
 
+        upo_swap(ptr + i * size, ptr + j * size, size);
+    }
+    upo_swap(ptr + p * size, ptr + j * size, size);
+    return j;
+}
 
+void upo_quick_sort_rec(void *base, size_t left, size_t right, size_t size, upo_sort_comparator_t cmp)
+{
+    if (left >= right)
+        return;
+
+    size_t j = upo_partition(base, left, right, size, cmp);
+    if (j > left)
+        upo_quick_sort_rec(base, left, j - 1, size, cmp);
+    upo_quick_sort_rec(base, j + 1, right, size, cmp);
+}
 void upo_quick_sort(void *base, size_t n, size_t size, upo_sort_comparator_t cmp)
 {
+    upo_quick_sort_rec(base, 0, n - 1, size, cmp);
 }
