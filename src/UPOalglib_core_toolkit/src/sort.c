@@ -79,6 +79,7 @@ void upo_merge(void *base, size_t left, size_t mid, size_t right, size_t size, u
             ++k;
     }
     memcpy(ptr + left * size , cpy, size * (right - left + 1));
+    free(cpy);
 }
 
 
