@@ -78,9 +78,6 @@ static int by_year_comparator(const void *a, const void *b);
 static int parse_entry(const char *str, entry_t *entry);
 
 
-/**** EXERCISE #2 - BEGIN of SORTING PLAYLISTS ****/
-
-
 int by_artist_comparator(const void *a, const void *b)
 {
     entry_t* entry_a = (entry_t*)a;
@@ -136,7 +133,6 @@ void playlist_sort(playlist_t playlist, playlist_sorting_criterion_t order_by)
     upo_sort_comparator_t comparator[] = {by_artist_comparator, by_album_comparator, by_year_comparator, by_track_number_comparator, by_track_title_comparator};
     upo_insertion_sort(playlist -> entries, playlist -> size, sizeof(entry_t), comparator[order_by-1]);
 }
-
 
 
 int parse_entry(const char *str, entry_t *entry)
