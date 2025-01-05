@@ -212,7 +212,7 @@ upo_bst_node_t * upo_bst_max_node(upo_bst_node_t * node)
     if (node -> right == NULL)
         return node;
     else
-        upo_bst_max_node(node -> right);
+        return upo_bst_max_node(node -> right);
 }
 
 upo_bst_node_t * upo_bst_predecessor(upo_bst_node_t * node)
@@ -354,7 +354,7 @@ size_t upo_bst_height(const upo_bst_t tree)
      */
     if (tree == NULL || upo_bst_is_empty(tree))
         return 0;
-    else upo_bst_height_rec(tree -> root);
+    else return upo_bst_height_rec(tree -> root);
 }
 
 void upo_bst_traverse_in_order_rec(upo_bst_node_t * node, upo_bst_visitor_t visit, void *visit_context)
