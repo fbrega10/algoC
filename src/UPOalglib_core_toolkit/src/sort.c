@@ -25,75 +25,77 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <upo/utility.h>
 
 
 void upo_insertion_sort(void *base, size_t n, size_t size, upo_sort_comparator_t cmp)
 {
-    unsigned char * ptr = (unsigned char *) base;
-    for (size_t i = 1; i < n; ++i)
-    {
+    unsigned char * ptr = base;
+
+    for (size_t i = 1; i < n ; ++i){
         size_t j = i;
-        while (j > 0 && cmp(ptr + j * size, ptr + (j-1) * size) < 0)
-        {
+        while (j > 0 && cmp(ptr + j * size, ptr + (j-1) * size) < 0){
             upo_swap(ptr + j * size, ptr + (j-1) * size, size);
-            j--; 
+            --j;
         }
     }
+}
+
+void upo_merge(void *base, size_t left, size_t mid, size_t right, size_t size, upo_sort_comparator_t cmp)
+{
+    size_t i = left;
+    size_t j = mid + 1;
+    size_t k = 0;
+
+    unsigned char * ptr = base;
+    unsigned char * cpy = malloc(size * (right - left + 1));
+
+    if (cpy == NULL)
+        perror("\ncould not allocate memory \n");
+
+    while (i <= mid && j <= right){
+
+        int result = cmp(ptr + i * size, ptr + j * size);
+
+        if (result <= 0){
+            memcpy(cpy + k * size, ptr + i * size, size);
+            ++i;
+            ++k;
+        }
+        else{
+            memcpy(cpy + k * size, ptr + j * size, size);
+            ++j;
+            ++k;
+        }
+    }
+    while (i <= mid){
+            memcpy(cpy + k * size, ptr + i * size, size);
+            ++i;
+            ++k;
+    }
+    while (j <= right){
+            memcpy(cpy + k * size, ptr + j * size, size);
+            ++j;
+            ++k;
+    }
+    memcpy(ptr + left * size , cpy, size * (right - left + 1));
+    free(cpy);
+}
+
+
+void upo_merge_sort_rec(void *base, size_t left, size_t right, size_t size, upo_sort_comparator_t cmp)
+{
+    if (left >= right)
+        return;
+    size_t mid = (left + right) / 2;
+    upo_merge_sort_rec(base, left, mid, size, cmp);
+    upo_merge_sort_rec(base, mid + 1, right, size, cmp);
+    upo_merge(base, left, mid, right, size, cmp);
 }
 
 void upo_merge_sort(void *base, size_t n, size_t size, upo_sort_comparator_t cmp)
 {
-    if(n <= 1)
-        return;  
-
-    size_t left_size = n/2;   
-
-    size_t righ_size = n-left_size;
-
-    upo_merge_sort((char*)base, left_size, size, cmp);
-    upo_merge_sort((char*)base + left_size * size, righ_size, size, cmp);
-    upo_merge((char*)base, left_size, righ_size, size, cmp);
-}
-
-void upo_merge(void *base, size_t left_size, size_t righ_size, size_t size, upo_sort_comparator_t cmp){
-
-    unsigned char * aux_array = malloc(size*(left_size + righ_size));
-
-    unsigned char * aux_ptr = aux_array;
-
-    unsigned char * basePtr = (unsigned char*) base;
-
-    unsigned char * i1 = basePtr;
-    unsigned char * i2 = basePtr + size * left_size;
-
-
-    while((i1 != basePtr + size*left_size) && (i2 != basePtr + size*(left_size+righ_size)))
-    {
-        if (cmp(i1, i2) < 0) {    
-            memcpy(aux_ptr, i1, size);
-            aux_ptr += size;
-            i1 += size;
-        } else {
-            memcpy(aux_ptr, i2, size);
-            aux_ptr += size;
-            i2 += size;
-        }
-    }
-
-    while(i1 != basePtr + size*left_size)
-    {
-        memcpy(aux_ptr, i1, size);
-        aux_ptr += size;
-        i1 += size;
-    }
-    while(i2 != basePtr + size*(left_size+righ_size))
-    {
-        memcpy(aux_ptr, i2, size);
-        aux_ptr += size;
-        i2 += size;
-    }
-    memcpy(basePtr, aux_array, size*(left_size+righ_size));
-    free(aux_array);
+    upo_merge_sort_rec(base, 0, n - 1, size, cmp);
 }
 
 
