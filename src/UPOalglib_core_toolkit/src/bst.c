@@ -159,10 +159,10 @@ void* upo_bst_get(const upo_bst_t tree, const void *key)
 
 void* upo_bst_put_rec(upo_bst_node_t * node, void *key, void *value, void *old_value, upo_bst_comparator_t key_cmp)
 {
-    old_value = NULL;
-
-    if (node == NULL)
+    if (node == NULL){
+        old_value = value;
         return upo_bst_new_node(key, value);
+    }
     int result = key_cmp(key, node -> key);
 
     if (result < 0)
