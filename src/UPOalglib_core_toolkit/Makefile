@@ -46,4 +46,15 @@ clean:
 doc-clean:
 	$(RM) -r $(docpath)
 
+exec-test:
+	./test/test_hires_timer
+	./test/test_stack
+	./test/test_sort
+	./test/test_bst
+	./test/test_bst_more
+	./test/test_hashtable_sepchain
+	./test/test_hashtable_sepchain_more
+	./test/test_hashtable_linprob
+	./test/test_hashtable_linprob_more
+
 realclean: clean doc-clean
