@@ -157,10 +157,10 @@ void* upo_bst_get(const upo_bst_t tree, const void *key)
         return NULL;
 }
 
-void* upo_bst_put_rec(upo_bst_node_t * node, void *key, void *value, void *old_value, upo_bst_comparator_t key_cmp)
+void* upo_bst_put_rec(upo_bst_node_t * node, void *key, void *value, void **old_value, upo_bst_comparator_t key_cmp)
 {
     if (node == NULL){
-        old_value = value;
+        *old_value = value;
         return upo_bst_new_node(key, value);
     }
     int result = key_cmp(key, node -> key);
@@ -170,7 +170,7 @@ void* upo_bst_put_rec(upo_bst_node_t * node, void *key, void *value, void *old_v
     else if (result > 0)
         node -> right = upo_bst_put_rec(node -> right, key, value, old_value, key_cmp);
     else {
-        old_value = node -> value;
+        *old_value = node -> value;
         node -> value = value;
     }
     return node;
@@ -187,7 +187,7 @@ void* upo_bst_put(upo_bst_t tree, void *key, void *value)
     void * old_value = NULL;
     if (tree == NULL)
         return NULL;
-    tree -> root = upo_bst_put_rec(tree -> root, key, value, old_value, tree -> key_cmp);
+    tree -> root = upo_bst_put_rec(tree -> root, key, value, &old_value, tree -> key_cmp);
     return old_value;
 }
 
