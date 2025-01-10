@@ -4,6 +4,7 @@
  * Copyright 2015 University of Piemonte Orientale, Computer Science Institute
  *
  * This file is part of UPOalglib.
+ * \author Fabio Bregasi
  *
  * UPOalglib is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
