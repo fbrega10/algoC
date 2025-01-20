@@ -5,8 +5,7 @@
  *
  * This file is part of UPOalglib.
  * \author Fabio Bregasi
- *
- * UPOalglib is free software: you can redistribute it and/or modify
+ * * UPOalglib is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -551,12 +550,16 @@ void upo_bst_keys_range_rec(upo_bst_node_t * node, const void *low_key, const vo
     if (node == NULL)
         return;
 
-    upo_bst_keys_range_rec(node -> left, low_key, high_key, key_cmp, keys_list);
+    int result_low = key_cmp(node -> key, low_key);
+    int result_high = key_cmp(node -> key, high_key);
 
-    if (key_cmp(node -> key, low_key) >= 0 && key_cmp(node -> key, high_key) <= 0){
+    if (result_low > 0)
+        upo_bst_keys_range_rec(node -> left, low_key, high_key, key_cmp, keys_list);
+
+    if (result_low >= 0 && result_high <= 0){
 
         upo_bst_key_list_t tail = *keys_list;
-        upo_bst_key_list_t new_node = upo_bst_initialize_list(node -> key);
+        upo_bst_key_list_node_t * new_node = upo_bst_initialize_list(node -> key);
 
         if (tail == NULL){
             *keys_list = new_node;
@@ -567,7 +570,9 @@ void upo_bst_keys_range_rec(upo_bst_node_t * node, const void *low_key, const vo
             tail -> next = new_node;
         }
     }
-    upo_bst_keys_range_rec(node -> right, low_key, high_key, key_cmp, keys_list);
+
+    if (result_high < 0)
+        upo_bst_keys_range_rec(node -> right, low_key, high_key, key_cmp, keys_list);
 }
 
 upo_bst_key_list_t upo_bst_keys_range(const upo_bst_t tree, const void *low_key, const void *high_key)

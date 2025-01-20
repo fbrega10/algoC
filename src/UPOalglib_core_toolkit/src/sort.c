@@ -138,3 +138,20 @@ void upo_quick_sort(void *base, size_t n, size_t size, upo_sort_comparator_t cmp
     if (base != NULL)
         upo_quick_sort_rec(base, 0, n - 1, size, cmp);
 }
+
+void upo_bubble_sort(void *base, size_t n, size_t size, upo_sort_comparator_t cmp)
+{
+    unsigned char * base_ptr = (unsigned char*) base;
+    for (size_t j = 0; j < n-1; ++j){
+        int bubble_flag = 0;
+        for (size_t i = 0; i < n-j-1; ++i){
+            if (cmp(base_ptr + i * size, base_ptr + (i+1) * size) > 0)
+            {
+                upo_swap(base_ptr + i * size, base_ptr + ((i+1) * size), size);
+                bubble_flag = 1;
+            }
+        }
+        if (bubble_flag == 0)
+            return;
+    }
+}
