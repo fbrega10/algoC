@@ -645,6 +645,54 @@ int upo_bst_is_bst(const upo_bst_t tree, const void *min_key, const void *max_ke
     return upo_bst_is_bst_impl(tree -> root, min_key, max_key, tree -> key_cmp);
 }
 
+void upo_bst_subtree_count_even_impl(upo_bst_node_t * node, const void *key, size_t* ptr, int level_value){
+    if (node == NULL)
+        return;
+    if (level_value % 2 == 0)
+        *ptr += 1;
+    upo_bst_subtree_count_even_impl(node -> left, key, ptr, level_value+1);
+    upo_bst_subtree_count_even_impl(node -> right, key, ptr, level_value+1);
+}
+
+upo_bst_node_t * upo_bst_get_node_counting(upo_bst_node_t * node, const void *key, upo_bst_comparator_t key_cmp, int level, int * final){
+    if (node == NULL)
+        return NULL;
+    int result = key_cmp(key, node -> key);
+    if (result == 0){
+        *final = level;
+        return node;
+    }
+    if (result > 0)
+        return upo_bst_get_node_counting(node -> right, key, key_cmp, level + 1, final);
+    else
+        return upo_bst_get_node_counting(node -> left, key, key_cmp, level + 1, final);
+}
+
+
+size_t upo_bst_subtree_count_even(const upo_bst_t bst, const void *key)
+{
+    size_t * counter = (size_t*) malloc(sizeof(size_t));
+    if (counter == NULL)
+        perror("error occurred allocating memory");
+    *counter = 0;
+
+    if ( bst == NULL || key == NULL || upo_bst_is_empty(bst))
+        return *counter;
+
+    int * final = malloc(sizeof(int));
+    *final = 0;
+
+    upo_bst_node_t * sub_tree = upo_bst_get_node_counting(bst -> root, key, bst -> key_cmp, 0, final);
+    if (sub_tree == NULL){
+        free(counter);
+        return 0;
+    }
+    upo_bst_subtree_count_even_impl(sub_tree, key, counter, *final);
+    int ret_value = *counter;
+    free(counter);
+    return ret_value;
+}
+
 
 upo_bst_comparator_t upo_bst_get_comparator(const upo_bst_t tree)
 {
